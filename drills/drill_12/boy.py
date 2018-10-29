@@ -6,11 +6,11 @@ import game_world
 
 # Boy Run Speed
 # fill expressions correctly
-PIXEL_PER_METER = 0
-RUN_SPEED_KMPH = 0
-RUN_SPEED_MPM = 0
-RUN_SPEED_MPS = 0
-RUN_SPEED_PPS = 0
+PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
+RUN_SPEED_KMPH = 20.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 # Boy Action Speed
 # fill expressions correctly
@@ -46,7 +46,7 @@ class IdleState:
             boy.velocity -= RUN_SPEED_PPS
         elif event == LEFT_UP:
             boy.velocity += RUN_SPEED_PPS
-        boy.timer = 1000
+        boy.timer = get_time()
 
     @staticmethod
     def exit(boy, event):
@@ -57,8 +57,8 @@ class IdleState:
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
-        boy.timer -= 1
-        if boy.timer == 0:
+
+        if get_time() - boy.timer >= 10:
             boy.add_event(SLEEP_TIMER)
 
     @staticmethod
@@ -73,8 +73,15 @@ class RunState:
 
     @staticmethod
     def enter(boy, event):
-        # fill here
-        pass
+        if event == RIGHT_DOWN:
+            boy.velocity += RUN_SPEED_PPS
+        elif event == LEFT_DOWN:
+            boy.velocity -= RUN_SPEED_PPS
+        elif event == RIGHT_UP:
+            boy.velocity -= RUN_SPEED_PPS
+        elif event == LEFT_UP:
+            boy.velocity += RUN_SPEED_PPS
+        boy.dir = clamp(-1, boy.velocity, 1)
 
     @staticmethod
     def exit(boy, event):
@@ -84,7 +91,7 @@ class RunState:
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
-        # fill here
+        boy.x += boy.velocity * game_framework.frame_time
         boy.x = clamp(25, boy.x, 1600 - 25)
 
     @staticmethod
@@ -100,6 +107,10 @@ class SleepState:
     @staticmethod
     def enter(boy, event):
         boy.frame = 0
+        boy.angle = 3.141592 / 180
+        boy.n = 90
+        boy.SleepX = 0
+        boy.SleepY = 0
 
     @staticmethod
     def exit(boy, event):
@@ -108,17 +119,24 @@ class SleepState:
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        if boy.n > 0:
+            boy.n -= 1.8
+            boy.SleepY += 0.5
+            boy.SleepX += 0.5
+
 
     @staticmethod
     def draw(boy):
         if boy.dir == 1:
+            boy.image.opacify(0.5)
+            boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, boy.angle * boy.n, '', boy.x - 25 + boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            boy.image.opacify(1.0)
             boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, 3.141592 / 2, '', boy.x - 25, boy.y - 25, 100, 100)
         else:
+            boy.image.opacify(0.5)
+            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '', boy.x + 25 - boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            boy.image.opacify(1.0)
             boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -3.141592 / 2, '', boy.x + 25, boy.y - 25, 100, 100)
-
-
-
-
 
 
 next_state_table = {
@@ -127,25 +145,28 @@ next_state_table = {
     SleepState: {LEFT_DOWN: RunState, RIGHT_DOWN: RunState, LEFT_UP: RunState, RIGHT_UP: RunState, SPACE: IdleState}
 }
 
+
 class Boy:
 
     def __init__(self):
         self.x, self.y = 1600 // 2, 90
         # Boy is only once created, so instance image loading is fine
         self.image = load_image('animation_sheet.png')
-        # fill here
+        self.font = load_font('ENCR10B.TTF', 16)
         self.dir = 1
         self.velocity = 0
         self.frame = 0
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
-
+        self.angle = 3.141592 / 180
+        self.n = 90
+        self.SleepX = 0
+        self.SleepY = 0
 
     def fire_ball(self):
         ball = Ball(self.x, self.y, self.dir*3)
         game_world.add_object(ball, 1)
-
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -160,7 +181,7 @@ class Boy:
 
     def draw(self):
         self.cur_state.draw(self)
-        # fill here
+        self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)' % get_time(), (255, 255, 0))
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
