@@ -3,6 +3,7 @@ from pico2d import *
 from ball import Ball
 
 import game_world
+import math
 
 # Boy Run Speed
 # fill expressions correctly
@@ -111,6 +112,9 @@ class SleepState:
         boy.n = 90
         boy.SleepX = 0
         boy.SleepY = 0
+        boy.EmphasisX = 0
+        boy.EmphasisY = 0
+        boy.MoveAngle = -90
 
     @staticmethod
     def exit(boy, event):
@@ -123,20 +127,32 @@ class SleepState:
             boy.n -= 1.8
             boy.SleepY += 0.5
             boy.SleepX += 0.5
+            boy.EmphasisX = boy.x
+            boy.EmphasisY = boy.y + 100
+        else:
+            boy.MoveAngle += 270 * game_framework.frame_time
 
 
     @staticmethod
     def draw(boy):
         if boy.dir == 1:
             boy.image.opacify(0.5)
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, boy.angle * boy.n, '', boy.x - 25 + boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            if boy.n > 0:
+                boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, boy.angle * boy.n, '', boy.x - 25 + boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            else:
+                boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, boy.angle * boy.n, '', boy.EmphasisX + 100 * math.cos(boy.angle * boy.MoveAngle),
+                                              boy.EmphasisY + 100 * math.sin(boy.angle * boy.MoveAngle), 100, 100)
             boy.image.opacify(1.0)
             boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, 3.141592 / 2, '', boy.x - 25, boy.y - 25, 100, 100)
         else:
             boy.image.opacify(0.5)
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '', boy.x + 25 - boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            if boy.n > 0:
+                boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '', boy.x + 25 - boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
+            else:
+                boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '',
+                                              boy.EmphasisX + 100 * math.cos(boy.angle * boy.MoveAngle), boy.EmphasisY + 100 * math.sin(boy.angle * boy.MoveAngle), 100, 100)
             boy.image.opacify(1.0)
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -3.141592 / 2, '', boy.x + 25, boy.y - 25, 100, 100)
+            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -3.141592 / 2, '', boy.EmphasisX, boy.EmphasisY, 100, 100)
 
 
 next_state_table = {
@@ -163,6 +179,9 @@ class Boy:
         self.n = 90
         self.SleepX = 0
         self.SleepY = 0
+        self.EmphasisX = 0
+        self.EmphasisY = 0
+        self.MoveAngle = -90
 
     def fire_ball(self):
         ball = Ball(self.x, self.y, self.dir*3)
