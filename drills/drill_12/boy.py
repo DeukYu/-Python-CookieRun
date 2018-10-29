@@ -4,6 +4,7 @@ from ball import Ball
 
 import game_world
 import math
+import random
 
 # Boy Run Speed
 # fill expressions correctly
@@ -131,15 +132,15 @@ class SleepState:
             boy.EmphasisY = boy.y + 100
         else:
             if boy.dir == 1:
-                boy.MoveAngle += 270 * game_framework.frame_time
+                boy.MoveAngle += 720 * game_framework.frame_time
             else:
-                boy.MoveAngle -= 270 * game_framework.frame_time
+                boy.MoveAngle -= 720 * game_framework.frame_time
 
 
     @staticmethod
     def draw(boy):
         if boy.dir == 1:
-            boy.image.opacify(0.5)
+            boy.image.opacify(0.1 * random.randint(1, 9))
             if boy.n > 0:
                 boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, boy.angle * boy.n, '', boy.x - 25 + boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
             else:
@@ -148,7 +149,7 @@ class SleepState:
             boy.image.opacify(1.0)
             boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100, 3.141592 / 2, '', boy.x - 25, boy.y - 25, 100, 100)
         else:
-            boy.image.opacify(0.5)
+            boy.image.opacify(0.1 * random.randint(1, 9))
             if boy.n > 0:
                 boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '', boy.x + 25 - boy.SleepX, boy.y - 25 + boy.SleepY, 100, 100)
             else:
