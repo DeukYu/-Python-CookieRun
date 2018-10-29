@@ -130,7 +130,10 @@ class SleepState:
             boy.EmphasisX = boy.x
             boy.EmphasisY = boy.y + 100
         else:
-            boy.MoveAngle += 270 * game_framework.frame_time
+            if boy.dir == 1:
+                boy.MoveAngle += 270 * game_framework.frame_time
+            else:
+                boy.MoveAngle -= 270 * game_framework.frame_time
 
 
     @staticmethod
@@ -152,7 +155,7 @@ class SleepState:
                 boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -boy.angle * boy.n, '',
                                               boy.EmphasisX + 100 * math.cos(boy.angle * boy.MoveAngle), boy.EmphasisY + 100 * math.sin(boy.angle * boy.MoveAngle), 100, 100)
             boy.image.opacify(1.0)
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -3.141592 / 2, '', boy.EmphasisX, boy.EmphasisY, 100, 100)
+            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100, -3.141592 / 2, '', boy.x + 25, boy.y - 25, 100, 100)
 
 
 next_state_table = {
