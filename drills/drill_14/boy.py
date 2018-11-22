@@ -136,8 +136,6 @@ class Boy:
         self.bg = bg
         self.x = self.bg.w / 2
         self.y = self.bg.h / 2
-        self.posx = self.bg.w / 2
-        self.posy = self.bg.h / 2
 
     def add_event(self, event):
         self.event_que.insert(0, event)
