@@ -8,7 +8,7 @@ class Ball:
     image = None
     bg = None
 
-    def __init__(self, bg):
+    def __init__(self, bg)
         if Ball.bg == None:
             Ball.bg = bg
         if Ball.image == None:
