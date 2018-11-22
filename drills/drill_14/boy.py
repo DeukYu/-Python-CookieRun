@@ -152,7 +152,7 @@ class Boy:
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.posx - 60, self.posy + 50, '(%5d)' % self.ball_cnt, (255, 255, 0))
+        self.font.draw(self.x - self.bg.window_left - 60, self.y - self.bg.window_bottom + 50, '(Ball Count:%d)' % self.ball_cnt, (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
