@@ -14,7 +14,6 @@ from zombie import Zombie
 
 
 boy = None
-zombie = None
 
 
 name = "WorldBuildState"
@@ -40,11 +39,8 @@ def resume():
 def get_boy():
     return boy
 
-def get_zombie():
-    return zombie
-
 def create_new_world():
-    global boy, zombie
+    global boy
     boy = Boy()
     game_world.add_object(boy, 1)
 
@@ -75,7 +71,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-                game_framework.quit()
+            game_framework.change_state(world_build_state)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_n:
             create_new_world()
             game_framework.change_state(main_state)
